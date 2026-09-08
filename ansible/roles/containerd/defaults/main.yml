@@ -1,0 +1,9 @@
+# containerd version 2.X
+containerd_systemd_cgroup: true
+containerd_config_path: /etc/containerd/config.toml
+containerd_socket: /run/containerd/containerd.sock
+
+containerd_packages:
+  - containerd
+  
+crictl_version: "1.36.0"

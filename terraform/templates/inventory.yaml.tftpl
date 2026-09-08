@@ -1,0 +1,18 @@
+all:
+  children:
+    control_plane:
+      hosts:
+%{ for name, node in nodes ~}
+%{ if node.role == "control_plane" ~}
+        ${name}:
+          ansible_host: ${node.ip}
+%{ endif ~}
+%{ endfor ~}
+    workers:
+      hosts:
+%{ for name, node in nodes ~}
+%{ if node.role == "worker" ~}
+        ${name}:
+          ansible_host: ${node.ip}
+%{ endif ~}
+%{ endfor ~}

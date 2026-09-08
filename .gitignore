@@ -1,0 +1,9 @@
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/.terraform.lock.hcl
+*.retry
+ansible/inventory/hosts.yml
+kubeconfig
+*.key
+tmp/user-data

@@ -1,0 +1,55 @@
+- name: Добавить helm-репозиторий metallb
+  kubernetes.core.helm_repository:
+    name: metallb
+    repo_url: https://metallb.github.io/metallb
+  delegate_to: localhost
+  become: false
+  run_once: true
+
+- name: Установить metallb
+  kubernetes.core.helm:
+    name: metallb
+    chart_ref: metallb/metallb
+    chart_version: "{{ metallb_version }}"
+    create_namespace: true
+    release_namespace: metallb-system
+    kubeconfig: "{{ kubeconfig_path }}"
+    wait: true
+    wait_timeout: 10m
+  delegate_to: localhost
+  become: false
+  run_once: true
+
+- name: Создать IPAddressPool для MetalLB
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ kubeconfig_path }}"
+    definition:
+      apiVersion: metallb.io/v1beta1
+      kind: IPAddressPool
+      metadata:
+        name: lab-pool
+        namespace: metallb-system
+      spec:
+        addresses:
+          - 192.168.100.200-192.168.100.250
+  delegate_to: localhost
+  become: false
+  run_once: true
+
+- name: Создать L2Advertisement для MetalLB
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ kubeconfig_path }}"
+    definition:
+      apiVersion: metallb.io/v1beta1
+      kind: L2Advertisement
+      metadata:
+        name: lab-l2
+        namespace: metallb-system
+      spec:
+        ipAddressPools:
+          - lab-pool
+  delegate_to: localhost
+  become: false
+  run_once: true

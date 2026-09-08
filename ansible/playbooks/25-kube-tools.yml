@@ -1,0 +1,7 @@
+---
+- name: Установка и настройка kubelet, kubeadm и kubectl
+  hosts: all
+  become: true
+  roles:
+    - role: kube_tools
+      tags: [kube_tools]

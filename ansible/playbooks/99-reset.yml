@@ -1,0 +1,47 @@
+---
+- name: Полный сброс кластера
+  hosts: all
+  become: true
+  gather_facts: false
+
+  vars_prompt:
+    - name: confirm
+      prompt: "Это уничтожит кластер на {{ ansible_limit | default('ВСЕХ НОДАХ') }}. Введите YES"
+      private: false
+
+  tasks:
+    - name: Проверить подтверждение
+      ansible.builtin.assert:
+        that: confirm == "YES"
+        fail_msg: "Отменено"
+      delegate_to: localhost
+      become: false
+      run_once: true
+
+    - name: kubeadm reset
+      ansible.builtin.command:
+        cmd: kubeadm reset -f --cri-socket unix:///run/containerd/containerd.sock
+      failed_when: false
+
+    - name: Удалить каталоги кластера
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/cni/net.d
+        - /var/lib/etcd
+        - /etc/kubernetes
+        - "/home/{{ ansible_user }}/.kube"
+        - /root/.kube
+      become: true
+
+    - name: Сбросить iptables
+      ansible.builtin.iptables:
+        table: "{{ item }}"
+        flush: true
+      loop: [filter, nat, mangle]
+
+    - name: Перезапустить containerd
+      ansible.builtin.systemd_service:
+        name: containerd
+        state: restarted

@@ -1,0 +1,12 @@
+---
+kubeadm_skip_phases:
+  - addon/kube-proxy
+
+kubeadm_cert_sans:
+  - k8s-api.lab.local
+  - "{{ api_vip }}"
+  - "{{ ansible_host }}"
+  - 127.0.0.1
+
+kubeadm_config_path: /etc/kubernetes/kubeadm-config.yaml
+containerd_socket_uri: unix:///run/containerd/containerd.sock

@@ -1,0 +1,7 @@
+---
+- name: Установка CNI
+  hosts: control_plane
+  gather_facts: false
+  roles:
+    - role: cni
+      tags: [cni]

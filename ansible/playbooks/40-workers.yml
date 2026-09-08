@@ -1,0 +1,7 @@
+---
+- name: Join workers
+  hosts: workers
+  become: true
+  roles:
+    - role: workers
+      tags: [workers]

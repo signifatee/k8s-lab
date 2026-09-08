@@ -1,0 +1,17 @@
+---
+- name: Установка addons
+  hosts: control_plane
+  gather_facts: false
+  roles:
+    - role: metrics-server
+      tags: [metrics-server]
+    - role: metallb
+      tags: [metallb]
+    - role: ingress-nginx
+      tags: [ingress-nginx]
+    - role: local-path-provisioner
+      tags: [local-path-provisioner]
+    - role: cert-manager
+      tags: [cert-manager]
+    - role: argo-cd
+      tags: [argo-cd]

@@ -1,0 +1,7 @@
+---
+- name: Установка и настройка containerd
+  hosts: all
+  become: true
+  roles:
+    - role: containerd
+      tags: [containerd]

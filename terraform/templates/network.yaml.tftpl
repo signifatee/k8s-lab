@@ -1,0 +1,16 @@
+version: 2
+ethernets:
+  eth0:
+    match:
+      macaddress: "${macaddress}"
+    set-name: eth0
+    addresses:
+      - ${ip}/24
+    routes:
+      - to: default
+        via: 192.168.100.1
+    nameservers:
+      addresses:
+        - 192.168.100.1
+      search:
+        - lab.local

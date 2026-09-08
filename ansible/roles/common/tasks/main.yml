@@ -1,0 +1,78 @@
+---
+- name: Установить базовые пакеты
+  ansible.builtin.apt:
+    name: "{{ common_base_packages }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Проверить наличие активного swap
+  ansible.builtin.command: swapon --show --noheadings
+  register: common_swap_active
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Отключить swap в текущей сессии
+  ansible.builtin.command: swapoff -a
+  when: common_swap_active.stdout | length > 0
+
+- name: Убрать записи swap из fstab
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^([^#].*\s+swap\s+.*)$'
+    replace: '# \1'
+
+# --- МОДУЛИ ЯДРА --------------------------------------------------------
+
+- name: Загрузить и закрепить модули ядра
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+    persistent: present
+  loop: "{{ common_kernel_modules }}"
+
+# --- SYSCTL -------------------------------------------------------------
+
+- name: Задать параметры ядра
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    sysctl_file: "{{ common_sysctl_file }}"
+    sysctl_set: true
+    reload: true
+    state: present
+  loop: "{{ common_sysctl_params }}"
+
+# --- ВРЕМЯ --------------------------------------------------------------
+
+- name: Дождаться синхронизации времени
+  ansible.builtin.command: timedatectl show --property=NTPSynchronized --value
+  register: common_ntp_sync
+  changed_when: false
+  until: common_ntp_sync.stdout == "yes"
+  retries: 12
+  delay: 5
+
+# --- /etc/hosts ---------------------------------------------------------
+
+- name: Прописать хосты кластера
+  ansible.builtin.blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} ANSIBLE MANAGED: k8s-lab"
+    block: |
+      {% for h in cluster_hosts %}
+      {{ h.ip }}  {{ h.names }}
+      {% endfor %}
+  when: common_manage_hosts | bool
+
+- name: Подключить репозиторий Kubernetes
+  ansible.builtin.deb822_repository:
+    name: kubernetes
+    types: [deb]
+    uris: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_minor }}/deb/"
+    suites: ["/"]
+    signed_by: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_minor }}/deb/Release.key"
+    enabled: true
+    state: present
+  notify: Update apt cache

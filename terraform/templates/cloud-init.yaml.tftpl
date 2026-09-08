@@ -1,0 +1,33 @@
+#cloud-config
+hostname: ${hostname}
+fqdn: ${fqdn}
+manage_etc_hosts: false
+
+users:
+  - name: devops
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO3tgaeTQKrmn08oJRIfpmRpHjL2N0x0JEb4cg0DDVGE k8s-lab
+
+ssh_pwauth: false
+disable_root: true
+
+package_update: true
+package_upgrade: false
+
+write_files:
+  - path: /etc/hosts
+    append: true
+    content: |
+      192.168.100.11  cp-1 k8s-api.lab.local
+      192.168.100.21  worker-1
+      192.168.100.22  worker-2
+      192.168.100.23  worker-3
+      
+packages:
+  - qemu-guest-agent
+
+runcmd:
+  - [ systemctl, enable, --now, qemu-guest-agent ]

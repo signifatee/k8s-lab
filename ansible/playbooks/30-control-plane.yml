@@ -1,0 +1,7 @@
+---
+- name: Control plane
+  hosts: control_plane
+  become: true
+  roles:
+    - role: control_plane
+      tags: [control_plane]

@@ -1,0 +1,24 @@
+---
+- name: Добавить helm-репозиторий metrics-server
+  kubernetes.core.helm_repository:
+    name: metrics-server
+    repo_url: https://kubernetes-sigs.github.io/metrics-server/
+  delegate_to: localhost
+  become: false
+  run_once: true
+
+- name: Установить metrics-server
+  kubernetes.core.helm:
+    name: metrics-server
+    chart_ref: metrics-server/metrics-server
+    chart_version: "{{ metrics_server_version }}"
+    release_namespace: kube-system
+    kubeconfig: "{{ kubeconfig_path }}"
+    wait: true
+    wait_timeout: 10m
+    values:
+      args:
+        - --kubelet-insecure-tls
+  delegate_to: localhost
+  become: false
+  run_once: true

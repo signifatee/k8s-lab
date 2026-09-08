@@ -1,0 +1,23 @@
+# Kubernetes
+k8s_minor: "1.36"
+k8s_version: "1.36.4"
+
+# Сеть кластера
+pod_subnet: "10.244.0.0/16"
+service_subnet: "10.96.0.0/12"
+cluster_name: "k8s-lab"
+control_plane_endpoint: "k8s-api.lab.local:6443"
+api_vip: "192.168.100.10"
+
+# Компоненты
+cilium_version: "1.20.1"
+
+# Хосты кластера для /etc/hosts
+cluster_hosts:
+  - { ip: "192.168.100.11", names: "cp-1 k8s-api.lab.local" }
+  - { ip: "192.168.100.21", names: "worker-1" }
+  - { ip: "192.168.100.22", names: "worker-2" }
+  - { ip: "192.168.100.23", names: "worker-3" }
+
+ansible_user: devops
+kubeconfig_path: "{{ playbook_dir }}/../../kubeconfig"

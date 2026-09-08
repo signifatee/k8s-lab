@@ -1,0 +1,17 @@
+---
+
+- name: Установить компоненты Kubernetes
+  ansible.builtin.apt:
+    name:
+      - "kubelet={{ k8s_version }}-*"
+      - "kubeadm={{ k8s_version }}-*"
+      - "kubectl={{ k8s_version }}-*"
+    state: present
+    update_cache: true
+    allow_change_held_packages: true
+
+- name: Зафиксировать версии
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop: [kubelet, kubeadm, kubectl]

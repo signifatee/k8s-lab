@@ -1,0 +1,22 @@
+- name: Установить local-path-provisioner
+  kubernetes.core.k8s:
+    state: present
+    src: https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+    kubeconfig: "{{ kubeconfig_path }}"
+  delegate_to: localhost
+  become: false
+  run_once: true
+
+- name: Сделать local-path storage class по умолчанию
+  kubernetes.core.k8s:
+    state: patched
+    kind: StorageClass
+    name: local-path
+    kubeconfig: "{{ kubeconfig_path }}"
+    definition:
+      metadata:
+        annotations:
+          storageclass.kubernetes.io/is-default-class: "true"
+  delegate_to: localhost
+  become: false
+  run_once: true
