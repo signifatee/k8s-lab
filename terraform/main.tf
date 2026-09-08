@@ -9,7 +9,7 @@ resource "libvirt_volume" "node" {
   for_each = var.nodes
 
   name           = "${each.key}.qcow2"
-  pool           = "${var.pool}"
+  pool           = var.pool
   base_volume_id = libvirt_volume.base.id
   size           = each.value.disk * 1024 * 1024 * 1024 # bytes
   format         = "qcow2"
@@ -29,7 +29,7 @@ resource "libvirt_cloudinit_disk" "node" {
   network_config = templatefile("${path.module}/templates/network.yaml.tftpl", {
     macaddress     = each.value.mac
     ip             = each.value.ip
-    gateway = each.value.gateway
+    gateway = var.gateway
   })
 }
 
@@ -53,7 +53,7 @@ resource "libvirt_domain" "node" {
   }
 
   network_interface {
-    network_name   = "${var.network_name}"
+    network_name   = var.network_name
     mac            = each.value.mac
     wait_for_lease = false
   }

@@ -8,9 +8,9 @@ ethernets:
       - ${ip}/24
     routes:
       - to: default
-        via: $(gateway)
+        via: ${gateway}
     nameservers:
       addresses:
-        - 192.168.100.1
+        - ${gateway}
       search:
         - lab.local
