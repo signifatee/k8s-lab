@@ -8,7 +8,7 @@ ethernets:
       - ${ip}/24
     routes:
       - to: default
-        via: 192.168.100.1
+        via: $(gateway)
     nameservers:
       addresses:
         - 192.168.100.1

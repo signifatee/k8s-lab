@@ -9,7 +9,7 @@ users:
     shell: /bin/bash
     sudo: "ALL=(ALL) NOPASSWD:ALL"
     ssh_authorized_keys:
-      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO3tgaeTQKrmn08oJRIfpmRpHjL2N0x0JEb4cg0DDVGE k8s-lab
+      - ${ssh_key}
 
 ssh_pwauth: false
 disable_root: true

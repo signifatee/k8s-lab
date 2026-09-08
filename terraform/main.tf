@@ -1,7 +1,7 @@
 resource "libvirt_volume" "base" {
   name   = "noble-base.qcow2"
-  pool   = "images"
-  source = "/var/lib/libvirt/images/noble-server-cloudimg-amd64.img"
+  pool   = var.pool
+  source = "/var/lib/libvirt/${var.pool}/noble-server-cloudimg-amd64.img"
   format = "qcow2"
 }
 
@@ -9,7 +9,7 @@ resource "libvirt_volume" "node" {
   for_each = var.nodes
 
   name           = "${each.key}.qcow2"
-  pool           = "images"
+  pool           = "${var.pool}"
   base_volume_id = libvirt_volume.base.id
   size           = each.value.disk * 1024 * 1024 * 1024 # bytes
   format         = "qcow2"
@@ -29,6 +29,7 @@ resource "libvirt_cloudinit_disk" "node" {
   network_config = templatefile("${path.module}/templates/network.yaml.tftpl", {
     macaddress     = each.value.mac
     ip             = each.value.ip
+    gateway = each.value.gateway
   })
 }
 
@@ -52,7 +53,7 @@ resource "libvirt_domain" "node" {
   }
 
   network_interface {
-    network_name   = "k8s-lab"
+    network_name   = "${var.network_name}"
     mac            = each.value.mac
     wait_for_lease = false
   }

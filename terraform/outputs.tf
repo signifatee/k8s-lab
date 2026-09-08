@@ -3,7 +3,7 @@ output "node_ips" {
 }
 
 resource "local_file" "inventory" {
-  filename        = "${path.module}/../ansible/inventory/hosts.yaml"
+  filename        = "${path.module}/../ansible/inventory/hosts.yml"
   file_permission = "0644"
   content = templatefile("${path.module}/templates/inventory.yaml.tftpl", {
     nodes = var.nodes
